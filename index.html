@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Message For You ❤️</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oooh+Baby&family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --pink-bg: #ffc2d1; 
+            --heart-red: #ff4d6d;
+            --envelope-color: #ff8fa3;
+            --envelope-dark: #ff758f;
+            --paper-color: #fffdfa; 
+            --ui-font: 'Quicksand', sans-serif;
+            --letter-font: 'Oooh Baby', cursive;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--pink-bg);
+            font-family: var(--ui-font);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- FALLING HEARTS --- */
+        .heart-particle {
+            position: fixed;
+            top: -50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: fall linear forwards;
+            opacity: 0.9;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        /* --- ENVELOPE --- */
+        #envelope-container { 
+            position: relative; 
+            cursor: pointer; 
+            margin-top: 25vh;
+            z-index: 10;
+        }
+
+        .envelope { 
+            width: 280px; height: 180px; 
+            background: var(--envelope-color); 
+            position: relative; 
+            border-radius: 0 0 10px 10px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .envelope::before { 
+            content: ""; position: absolute; z-index: 2; 
+            border-top: 100px solid transparent; 
+            border-left: 140px solid var(--envelope-dark); 
+            border-right: 140px solid var(--envelope-dark); 
+            border-bottom: 90px solid var(--envelope-dark); 
+            border-radius: 0 0 10px 10px; 
+        }
+        .flap { 
+            position: absolute; top: 0; 
+            border-left: 140px solid transparent; 
+            border-right: 140px solid transparent; 
+            border-top: 110px solid var(--envelope-color); 
+            transform-origin: top; 
+            transition: transform 0.6s ease; 
+            z-index: 3; 
+        }
+        .opened .flap { transform: rotateX(180deg); z-index: 1; }
+        
+        .heart-icon { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            font-size: 50px; z-index: 4; 
+            animation: pulse 1.5s infinite; 
+        }
+        @keyframes pulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.2); } }
+
+        /* --- THE LETTER (Wavy Paper Style) --- */
+        #letter-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding-top: 40px;
+            z-index: 5;
+            animation: fadeIn 1s forwards;
+        }
+
+        .paper {
+            background: var(--paper-color);
+            width: 90%;
+            max-width: 500px;
+            min-height: 550px;
+            padding: 60px 50px;
+            position: relative;
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            box-shadow: 20px 20px 60px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .letter-text {
+            font-family: var(--letter-font);
+            font-size: 2.3rem;
+            line-height: 1.3;
+            color: #444;
+            outline: none;
+            flex-grow: 1;
+        }
+
+        .signature-area {
+            font-family: var(--letter-font);
+            font-size: 2.5rem;
+            color: #333;
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* No more line under the name */
+        .editable-name {
+            outline: none;
+            border: none;
+            min-width: 50px;
+            display: inline-block;
+        }
+
+        /* --- UI CONTROLS --- */
+        .controls { margin-top: 30px; display: flex; gap: 15px; }
+        
+        button {
+            background: var(--heart-red);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-family: var(--ui-font);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { transform: scale(1.05); }
+
+        .journal {
+            width: 90%;
+            max-width: 450px;
+            margin: 60px 0;
+            text-align: center;
+        }
+
+        .journal-entry {
+            background: white;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 15px;
+            position: relative;
+            text-align: left;
+            font-family: var(--letter-font);
+            font-size: 1.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            white-space: pre-wrap; /* Keeps formatting */
+        }
+
+        .delete-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: none; color: #ddd; border: none; font-size: 1rem; cursor: pointer;
+        }
+        .delete-btn:hover { color: var(--heart-red); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- ENVELOPE -->
+    <div id="envelope-container" onclick="openLetter()">
+        <div class="flap"></div>
+        <div class="envelope"></div>
+        <div class="heart-icon">💓</div>
+    </div>
+
+    <!-- LETTER VIEW -->
+    <div id="letter-view">
+        <div class="paper">
+            <div id="editable-letter" class="letter-text" contenteditable="true">Write your message here...</div>
+            
+            <div class="signature-area">
+                <span>Love, </span>
+                <span id="editable-name" class="editable-name" contenteditable="true">Your Name</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="saveNote()">💾 Save Note</button>
+            <button onclick="location.reload()" style="background:rgba(255,255,255,0.7); color:#333;">Close</button>
+        </div>
+
+        <div class="journal">
+            <h3 style="color: white; font-weight: 300; letter-spacing: 1px;">Our Love Journal</h3>
+            <div id="journal-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. RAINING HEARTS ---
+        const hearts = ['❤️', '💖', '💗', '💕', '💘', '💝'];
+        function createHeart() {
+            const h = document.createElement('div');
+            h.className = 'heart-particle';
+            h.innerHTML = hearts[Math.floor(Math.random() * hearts.length)];
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.fontSize = (Math.random() * 15 + 15) + 'px';
+            const duration = (Math.random() * 3 + 3); 
+            h.style.animationDuration = duration + 's';
+            document.body.appendChild(h);
+            setTimeout(() => { h.remove(); }, duration * 1000);
+        }
+        setInterval(createHeart, 350);
+
+        // --- 2. ENVELOPE LOGIC ---
+        function openLetter() {
+            document.getElementById('envelope-container').classList.add('opened');
+            setTimeout(() => {
+                document.getElementById('envelope-container').style.display = 'none';
+                document.getElementById('letter-view').style.display = 'flex';
+                loadJournal();
+            }, 800);
+        }
+
+        // --- 3. JOURNAL LOGIC ---
+        function saveNote() {
+            const bodyText = document.getElementById('editable-letter').innerText;
+            const nameText = document.getElementById('editable-name').innerText;
+            
+            if (!bodyText.trim() || bodyText.includes("Write your message")) return;
+
+            const fullMessage = bodyText + "\n\nLove: " + nameText;
+            const notes = JSON.parse(localStorage.getItem('love_notes') || '[]');
+            notes.unshift({ id: Date.now(), content: fullMessage });
+            localStorage.setItem('love_notes', JSON.stringify(notes));
+            
+            loadJournal();
+            alert("Saved to journal! ❤️");
+        }
+
+        function deleteNote(id) {
+            let notes = JSON.parse(localStorage.getItem('love_notes') || '[]');
+            notes = notes.filter(n => n.id !== id);
+            localStorage.setItem('love_notes', JSON.stringify(notes));
+            loadJournal();
+        }
+
+        function loadJournal() {
+            const list = document.getElementById('journal-list');
+            const notes = JSON.parse(localStorage.getItem('love_notes') || '[]');
+            list.innerHTML = notes.map(n => `
+                <div class="journal-entry">
+                    <button class="delete-btn" onclick="deleteNote(${n.id})">✕</button>
+                    ${n.content}
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
